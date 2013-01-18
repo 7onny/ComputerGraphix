@@ -302,6 +302,7 @@ int CMyView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	// Load texture from file.
+	IsLButtonDown=false;
 	if (!LoadGLTextures()) return -1;
 
 	return 0;
@@ -329,6 +330,7 @@ void CMyView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	pDoc->m_phi=0;
 
 	COpenGLView::OnLButtonDblClk(nFlags, point);
+	InvalidateRect(FALSE);
 }
 
 
@@ -347,7 +349,7 @@ void CMyView::OnNewviewViewposition()
 		pDoc->check=dlgVPD.check;
 	}
 	//We have the values from the dialog box at this point
-
+	InvalidateRect(FALSE);
 }
 
 
@@ -365,4 +367,5 @@ void CMyView::OnNewviewPerformcustomrotation()
 		pDoc->m_dz=dlg.m_dz;
 		pDoc->m_phi=dlg.m_phi;
 	}
+	InvalidateRect(FALSE);
 }

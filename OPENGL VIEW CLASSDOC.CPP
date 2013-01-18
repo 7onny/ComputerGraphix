@@ -54,6 +54,7 @@ COpenGLViewClassDoc::COpenGLViewClassDoc()
 	m_dy = 0.0;
 	m_dz = 0.0;
 	m_phi = 0.0;
+
 }
 
 COpenGLViewClassDoc::~COpenGLViewClassDoc()
