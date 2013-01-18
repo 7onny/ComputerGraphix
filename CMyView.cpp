@@ -17,12 +17,14 @@ BEGIN_MESSAGE_MAP(CMyView, COpenGLView)
 	ON_COMMAND(ID_NEWVIEW_PERFORMCUSTOMROTATION, &CMyView::OnNewviewPerformcustomrotation)
 END_MESSAGE_MAP()
 
+
+
 BOOL CMyView::SetupViewingTransform( void ){
 	COpenGLViewClassDoc *pDoc=GetDocument();
 	::glMatrixMode(GL_MODELVIEW);
 	::glLoadIdentity();
 	if(pDoc->check){	//Check output with glLookAt
-		::gluLookAt(pDoc->eyex,pDoc->eyey,pDoc->eyez,pDoc->dirx,pDoc->diry,pDoc->dirz,0,1,0);
+		::gluLookAt(pDoc->eyex,pDoc->eyey,pDoc->eyez,pDoc->eyex+pDoc->dirx,pDoc->eyey+pDoc->diry,pDoc->eyez+pDoc->dirz,0,1,0);
 	}
 	else{
 		//U
@@ -32,9 +34,9 @@ BOOL CMyView::SetupViewingTransform( void ){
 		double v=sqrt((pDoc->dirx*pDoc->dirx)+(pDoc->diry*pDoc->diry));
 		::glRotatef(atan2(v,-(pDoc->dirz))*(360/(2*3.141592)),0,1,0);
 		//G
-		::glRotatef(atan2(-pDoc->diry,pDoc->dirx)*(360/(2*3.141592)),0,0,1);
+		::glRotatef(atan2(-(pDoc->diry),pDoc->dirx)*(360/(2*3.141592)),0,0,1);
 		//F
-		::glTranslated(-pDoc->eyex,-pDoc->eyey,-pDoc->eyez);
+		::glTranslated(-(pDoc->eyex),-(pDoc->eyey),-(pDoc->eyez));
 	
 	}
 	return true;
@@ -43,27 +45,9 @@ BOOL CMyView::SetupViewingTransform( void ){
 
 BOOL CMyView::RenderScene()
 {
-	SetupViewingTransform();
+	CMyView::SetupViewingTransform();
 	COpenGLViewClassDoc *pDoc=GetDocument();
-	//Rotation
-	if(pDoc->m_phi!=0){
-		//F^-1
-		::glTranslated(pDoc->m_bx,pDoc->m_by,pDoc->m_bz);
-		//G^-1
-		::glRotated(-atan2(pDoc->m_dy,pDoc->m_dx)*(360/2*3.141592),0,0,1);
-		//H^-1
-		double v=sqrt((pDoc->m_dx*pDoc->m_dx)+(pDoc->m_dy*pDoc->m_dy));
-		::glRotated(-atan2(v,-(pDoc->m_dz))*(360/(2*3.141592)),0,1,0);
-		//W
-		::glRotated(pDoc->m_phi,0,0,1);
-		//H
-		v=sqrt((pDoc->m_dx*pDoc->m_dx)+(pDoc->m_dy*pDoc->m_dy));
-		::glRotated(atan2(v,-(pDoc->m_dz))*(360/(2*3.141592)),0,1,0);
-		//G
-		::glRotated(atan2(pDoc->m_dy,pDoc->m_dx)*(360/2*3.141592),0,0,1);
-		//F
-		::glTranslated(-pDoc->m_bx,-pDoc->m_by,-pDoc->m_bz);
-	}
+
 
 	//added lines
 	glEnable(GL_TEXTURE_2D);
@@ -88,8 +72,28 @@ BOOL CMyView::RenderScene()
 	::glEnable(GL_LIGHT0);
 
 	::glPushMatrix();	
-		::glTranslated(0.0, 0.0, -5.0);
-		//COpenGLViewClassDoc* pDoc = GetDocument();
+
+	//Rotation
+	if(pDoc->m_phi!=0){
+		//F^-1
+		::glTranslated(pDoc->m_bx,pDoc->m_by,pDoc->m_bz);
+		//G^-1
+		::glRotated(-atan2(pDoc->m_dy,pDoc->m_dx)*(360/2*3.141592),0.0,0.0,1.0);
+		//H^-1
+		double v=sqrt((pDoc->m_dx*pDoc->m_dx)+(pDoc->m_dy*pDoc->m_dy));
+		::glRotated(-atan2(v,pDoc->m_dz)*(360/(2*3.141592)),0.0,1.0,0.0);
+		//W
+		::glRotated(pDoc->m_phi,0.0,0.0,1.0);
+		//H
+		::glRotated(atan2(v,pDoc->m_dz)*(360/(2*3.141592)),0.0,1.0,0.0);
+		//G
+		::glRotated(atan2(pDoc->m_dy,pDoc->m_dx)*(360/2*3.141592),0.0,0.0,1.0);
+		//F
+		::glTranslated(-(pDoc->m_bx),-(pDoc->m_by),-(pDoc->m_bz));
+
+	}
+
+		
 		::glRotated(pDoc->rotx,1.0,0.0,0.0);
 		::glRotated(pDoc->roty,0.0,1.0,0.0);
 
@@ -338,8 +342,8 @@ void CMyView::OnNewviewViewposition()
 {
 	// TODO: Add your command handler code here
 	ViewPositionDialog dlgVPD;
+	COpenGLViewClassDoc *pDoc=GetDocument();
 	if(dlgVPD.DoModal()!=0){
-		COpenGLViewClassDoc *pDoc=GetDocument();
 		pDoc->eyex=dlgVPD.m_eyex;
 		pDoc->eyey=dlgVPD.m_eyey;
 		pDoc->eyez=dlgVPD.m_eyez;
@@ -347,6 +351,15 @@ void CMyView::OnNewviewViewposition()
 		pDoc->diry=dlgVPD.m_diry;
 		pDoc->dirz=dlgVPD.m_dirz;
 		pDoc->check=dlgVPD.check;
+	}
+	else{
+		pDoc->eyex=0;
+		pDoc->eyey=0;
+		pDoc->eyez=5;
+		pDoc->dirx=0;
+		pDoc->diry=0;
+		pDoc->dirz=-1;
+		pDoc->check=false;
 	}
 	//We have the values from the dialog box at this point
 	InvalidateRect(FALSE);
@@ -359,9 +372,9 @@ void CMyView::OnNewviewPerformcustomrotation()
 	NewRotationDialog dlg;
 	if(dlg.DoModal()!=0){
 		COpenGLViewClassDoc *pDoc=GetDocument();
-		pDoc->m_bx=dlg.m_dx;
-		pDoc->m_by=dlg.m_dy;
-		pDoc->m_bz=dlg.m_dz;
+		pDoc->m_bx=dlg.m_bx;
+		pDoc->m_by=dlg.m_by;
+		pDoc->m_bz=dlg.m_bz;
 		pDoc->m_dx=dlg.m_dx;
 		pDoc->m_dy=dlg.m_dy;
 		pDoc->m_dz=dlg.m_dz;

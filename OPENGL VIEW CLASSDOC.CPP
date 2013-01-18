@@ -116,5 +116,10 @@ void COpenGLViewClassDoc::Dump(CDumpContext& dc) const
 }
 #endif //_DEBUG
 
+void COpenGLViewClassDoc::SetTitle(LPCTSTR lpszTitle) 
+     {
+       CDocument::SetTitle("Computer Graphics Assignment");
+     }
+
 /////////////////////////////////////////////////////////////////////////////
 // COpenGLViewClassDoc commands

@@ -42,6 +42,7 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:
+	virtual void SetTitle(LPCTSTR lpszTitle);
 	double rotx;
 	double roty;
 	double eyex;
